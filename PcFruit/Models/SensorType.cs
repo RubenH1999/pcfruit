@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 
 namespace PcFruit.Models
 {
-    public enum MeterType
+    /// <summary>
+    /// Type of the sensor
+    /// </summary>
+    public enum SensorType
     {
         Thermometer,
         Dendrometer
