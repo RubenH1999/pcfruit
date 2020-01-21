@@ -32,7 +32,7 @@ namespace PcFruit.Controllers
         }
 
         // GET: api/Measurements/5
-        [HttpGet("{id}")]
+       /* [HttpGet("{id}")]
         public async Task<ActionResult<Measurement>> GetMeasurement(int id)
         {
             var measurement = await _context.Measurements.FindAsync(id);
@@ -43,6 +43,22 @@ namespace PcFruit.Controllers
             }
 
             return measurement;
+        }*/
+
+        // GET: api/Measurements/<modulename>
+        [HttpGet("{name}")]
+        public async Task<ActionResult<List<Measurement>>> GetMeasurementsOfModule(string name)
+        {
+            var measurements = _context.Measurements
+                .Include(m => m.Module)
+                .Include(m => m.Sensors)
+                .Where(m => m.Module.Name == name).ToList();
+
+            if (measurements.Count == 0)
+                return NotFound("module '" + name + "' not found!");
+
+
+            return measurements;
         }
 
         // PUT: api/Measurements/5
