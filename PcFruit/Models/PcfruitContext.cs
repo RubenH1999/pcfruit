@@ -11,14 +11,12 @@ namespace PcFruit.Models
         public PcfruitContext(DbContextOptions<PcfruitContext> options)
             :base(options)
         { }
-        public DbSet<Dendrometer> Dendrometers { get; set; }
-        public DbSet<Thermometer> Thermometers { get; set; }
+        public DbSet<Meter> Meters { get; set; }
         public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Dendrometer>().ToTable("Dendrometer");
-            modelBuilder.Entity<Thermometer>().ToTable("Thermometer");
+            modelBuilder.Entity<Meter>().ToTable("metingen");
             modelBuilder.Entity<User>().ToTable("User");
         }
     }

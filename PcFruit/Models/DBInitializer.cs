@@ -11,19 +11,14 @@ namespace PcFruit.Models
         {
             context.Database.EnsureCreated();
 
-            if(context.Dendrometers.Any())
+            if(context.Meters.Any())
             {
                 return;
             }
-            
-            context.Dendrometers.AddRange(
-                new Dendrometer { Analog = 0, Distance = 1, Label = "L", Resistance = 0, Voltage = 0 },
-                new Dendrometer { Analog = 0, Distance = 1, Label = "L", Resistance = 0, Voltage = 0 }
-                );
-            context.Thermometers.AddRange(
-                new Thermometer { Analog = 0, Resistance = 1 , Temperatuur= 14, Vochtigheid = 0, Volgtage=0},
-                new Thermometer { Analog = 1, Resistance = 2, Temperatuur = 10, Vochtigheid = 0, Volgtage = 0 }
-                );
+
+            context.Meters.AddRange(
+                new Meter { Analog = 0, Distance = 1, Label = "L", Resistance = 0, Voltage = 0 }
+            );
            
             context.SaveChanges();
         }
