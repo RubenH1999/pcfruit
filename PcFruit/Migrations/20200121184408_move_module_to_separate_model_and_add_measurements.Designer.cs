@@ -3,40 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PcFruit.Models;
 
 namespace PcFruit.Migrations
 {
     [DbContext(typeof(PcfruitContext))]
-    partial class PcfruitContextModelSnapshot : ModelSnapshot
+    [Migration("20200121184408_move_module_to_separate_model_and_add_measurements")]
+    partial class move_module_to_separate_model_and_add_measurements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("PcFruit.Models.Measurement", b =>
-                {
-                    b.Property<int>("MeasurementID")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("ModuleID");
-
-                    b.Property<DateTime>("TimeReceived");
-
-                    b.Property<DateTime>("TimeRegistered");
-
-                    b.HasKey("MeasurementID");
-
-                    b.HasIndex("ModuleID");
-
-                    b.ToTable("Measurements");
-                });
 
             modelBuilder.Entity("PcFruit.Models.Module", b =>
                 {
@@ -65,8 +48,6 @@ namespace PcFruit.Migrations
 
                     b.Property<string>("Label");
 
-                    b.Property<int?>("MeasurementID");
-
                     b.Property<int>("Resistance");
 
                     b.Property<int?>("Temperature");
@@ -76,8 +57,6 @@ namespace PcFruit.Migrations
                     b.Property<int>("Voltage");
 
                     b.HasKey("SensorID");
-
-                    b.HasIndex("MeasurementID");
 
                     b.ToTable("metingen");
                 });
@@ -99,21 +78,6 @@ namespace PcFruit.Migrations
                     b.HasKey("UserID");
 
                     b.ToTable("User");
-                });
-
-            modelBuilder.Entity("PcFruit.Models.Measurement", b =>
-                {
-                    b.HasOne("PcFruit.Models.Module", "Module")
-                        .WithMany("Measurements")
-                        .HasForeignKey("ModuleID")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("PcFruit.Models.Sensor", b =>
-                {
-                    b.HasOne("PcFruit.Models.Measurement")
-                        .WithMany("Sensors")
-                        .HasForeignKey("MeasurementID");
                 });
 #pragma warning restore 612, 618
         }
