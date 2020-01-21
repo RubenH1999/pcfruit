@@ -17,7 +17,7 @@ namespace PcFruit.Models
             }
 
             context.Meters.AddRange(
-                new Meter { Analog = 0, Distance = 1, Label = "L", Resistance = 0, Voltage = 0 }
+                new Sensor { Analog = 0, Distance = 1, Label = "L", Resistance = 0, Voltage = 0 }
             );
             context.Users.AddRange(
                 new User { Naam = "Horemans", Voornaam = "Ruben", Email= "r0695765@student.thomasmore.be", Password="test"}
