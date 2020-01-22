@@ -77,6 +77,10 @@ namespace PcFruit.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
+            // check if the user already exists
+            if (_context.Users.FirstOrDefault(u => u.Email == user.Email) != null)
+                return BadRequest("User with that email address already exists!");
+            
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
