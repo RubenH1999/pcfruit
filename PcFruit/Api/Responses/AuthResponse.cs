@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PcFruit.Api.Responses
 {
-    public class LoginResponse
+    public class AuthResponse
     {
         public string Token { get; set; }
     }
