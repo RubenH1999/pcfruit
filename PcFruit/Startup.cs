@@ -44,7 +44,7 @@ namespace PcFruit
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(x => {
                     x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                    x.SerializerSettings.ContractResolver = new DefaultContractResolver();
+                    x.SerializerSettings.ContractResolver = new LowerCaseJsonPropertiesResolver();
                 });
             services.AddDbContext<PcfruitContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSwaggerGen(c =>
