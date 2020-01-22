@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PcFruit.Models;
 
 namespace PcFruit.Migrations
 {
     [DbContext(typeof(PcfruitContext))]
-    partial class PcfruitContextModelSnapshot : ModelSnapshot
+    [Migration("20200122093903_add_salt_to_user_model")]
+    partial class add_salt_to_user_model
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

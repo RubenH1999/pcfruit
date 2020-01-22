@@ -26,7 +26,7 @@ namespace PcFruit.Controllers
             if (user == null)
                 return BadRequest(new { message = "Email or password is incorrect" });
             
-            return Ok(new LoginResponse() { Token = user.Token });
+            return Ok(new AuthResponse() { Token = user.Token });
         }
     }
     

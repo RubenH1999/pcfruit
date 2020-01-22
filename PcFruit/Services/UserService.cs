@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using PcFruit.Helpers;
+using PcFruit.Helpers.Security;
 using PcFruit.Models;
 
 namespace PcFruit.Services
@@ -25,10 +26,15 @@ namespace PcFruit.Services
 
         public User Authenticate(string email, string password)
         {
-            var user = _pcFruitContext.Users.SingleOrDefault(x => x.Email == email && x.Password == password);
+            // check if user exists
+            var user = _pcFruitContext.Users.SingleOrDefault(x => x.Email == email);
+            if (user == null) return null;
 
-            if (user == null)
+            // validate password
+            if (!Hash.Validate(password, user.Salt, user.Password))
                 return null;
+            
+            // generate token
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -43,7 +49,9 @@ namespace PcFruit.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             user.Token = tokenHandler.WriteToken(token);
 
+            // set props that aren't required in the response to null
             user.Password = null;
+            user.Salt = null;
 
             return user;
         }

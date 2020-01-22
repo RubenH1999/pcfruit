@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PcFruit.Api.Requests;
+using PcFruit.Helpers.Security;
 using PcFruit.Models;
 
 namespace PcFruit.Controllers
@@ -80,9 +82,19 @@ namespace PcFruit.Controllers
             // check if the user already exists
             if (_context.Users.FirstOrDefault(u => u.Email == user.Email) != null)
                 return BadRequest("User with that email address already exists!");
-            
+
+            // hash password
+            user.Salt = Salt.Create();
+            user.Password = Hash.Create(user.Password, user.Salt);
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            // do not include these values in the response. 
+            // We should create a custom Response class for this, but this gets the job done for now.
+            user.Password = null;
+            user.Token = null;
+            user.Salt = null;
 
             return CreatedAtAction("GetUser", new { id = user.UserID }, user);
         }
