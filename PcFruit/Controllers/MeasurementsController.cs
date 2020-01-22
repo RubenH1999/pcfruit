@@ -52,7 +52,8 @@ namespace PcFruit.Controllers
             var measurements = _context.Measurements
                 .Include(m => m.Module)
                 .Include(m => m.Sensors)
-                .Where(m => m.Module.Name == name).ToList();
+                .Where(m => m.Module.Name == name)
+                .ToList();
 
             if (measurements.Count == 0)
                 return NotFound("module '" + name + "' not found!");
