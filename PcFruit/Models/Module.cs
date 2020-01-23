@@ -13,5 +13,6 @@ namespace PcFruit.Models
         public int ModuleID { get; set; }
         public string Name { get; set; }
         public List<Measurement> Measurements { get; set; }
+        public List<Notification> Notifications { get; set; }
     }
 }
