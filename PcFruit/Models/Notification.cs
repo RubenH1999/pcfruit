@@ -16,5 +16,7 @@ namespace PcFruit.Models
         public int MaxRH { get; set; }
 
         public Module module { get; set; }
+
+        public bool IsActive { get; set; }
     }
 }
