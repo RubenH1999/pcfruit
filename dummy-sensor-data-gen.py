@@ -51,9 +51,9 @@ class TempMeter(Meter):
 def rnd(min = 1, max = 5):
     return random.randint(min, max)
 
-def randomize_data():
+def randomize_data(moduleName = None):
     data = {
-        'logger': "Log00{}".format(random.randint(0, 999)),
+        'logger': moduleName if moduleName else "Log00{}".format(random.randint(0, 999)),
         'dateTime': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'dendrometers': [],
         'thermometers': []
@@ -84,7 +84,14 @@ def randomize_data():
 
     return data
 
-data = randomize_data()
+# usage: python script.py <api url> <module>
+
+# read module from args
+moduleName = None
+if len(sys.argv) == 3:
+    moduleName = sys.argv[2]
+
+data = randomize_data(moduleName)
 print("sending: " + json.dumps(data))
 
 url = "http://localhost:61955/api/measurements"
