@@ -17,8 +17,11 @@ namespace PcFruit.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Sensor>().ToTable("metingen");
-            modelBuilder.Entity<User>().ToTable("User");
+            modelBuilder.Entity<Sensor>().ToTable("sensors");
+            modelBuilder.Entity<User>().ToTable("users");
+            modelBuilder.Entity<Module>().ToTable("modules");
+            modelBuilder.Entity<NotificationSettings>().ToTable("notificationSettings");
+            modelBuilder.Entity<Notification>().ToTable("notifications");
         }
 
         public DbSet<PcFruit.Models.Module> Modules { get; set; }

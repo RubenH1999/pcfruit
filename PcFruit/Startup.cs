@@ -109,7 +109,7 @@ namespace PcFruit
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMvc();
-            DBInitializer.Initialize(context);
+           // DBInitializer.Initialize(context);
         }
     }
 }

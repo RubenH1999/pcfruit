@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PcFruit.Models;
 
 namespace PcFruit.Migrations
 {
     [DbContext(typeof(PcfruitContext))]
-    partial class PcfruitContextModelSnapshot : ModelSnapshot
+    [Migration("20200123102003_tables_to_lowercase")]
+    partial class tables_to_lowercase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,27 +59,6 @@ namespace PcFruit.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("NotificationSettingsID");
-
-                    b.Property<int?>("NotificationSettingsID1");
-
-                    b.Property<int>("RH");
-
-                    b.Property<int>("temp");
-
-                    b.HasKey("NotificationID");
-
-                    b.HasIndex("NotificationSettingsID1");
-
-                    b.ToTable("notifications");
-                });
-
-            modelBuilder.Entity("PcFruit.Models.NotificationSettings", b =>
-                {
-                    b.Property<int>("NotificationSettingsID")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
                     b.Property<bool>("IsActive");
 
                     b.Property<int>("MaxRH");
@@ -90,17 +71,13 @@ namespace PcFruit.Migrations
 
                     b.Property<int>("ModuleID");
 
-                    b.Property<int>("NotificationID");
+                    b.Property<string>("PhoneNumber");
 
-                    b.Property<int>("UserID");
-
-                    b.HasKey("NotificationSettingsID");
+                    b.HasKey("NotificationID");
 
                     b.HasIndex("ModuleID");
 
-                    b.HasIndex("UserID");
-
-                    b.ToTable("notificationSettings");
+                    b.ToTable("notifications");
                 });
 
             modelBuilder.Entity("PcFruit.Models.Sensor", b =>
@@ -146,8 +123,6 @@ namespace PcFruit.Migrations
 
                     b.Property<string>("Password");
 
-                    b.Property<string>("PhoneNumber");
-
                     b.Property<string>("Salt");
 
                     b.Property<string>("Voornaam");
@@ -167,21 +142,9 @@ namespace PcFruit.Migrations
 
             modelBuilder.Entity("PcFruit.Models.Notification", b =>
                 {
-                    b.HasOne("PcFruit.Models.NotificationSettings", "NotificationSettings")
-                        .WithMany()
-                        .HasForeignKey("NotificationSettingsID1");
-                });
-
-            modelBuilder.Entity("PcFruit.Models.NotificationSettings", b =>
-                {
                     b.HasOne("PcFruit.Models.Module", "module")
                         .WithMany("Notifications")
                         .HasForeignKey("ModuleID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("PcFruit.Models.User", "user")
-                        .WithMany()
-                        .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
