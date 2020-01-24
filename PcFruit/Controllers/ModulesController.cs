@@ -33,7 +33,7 @@ namespace PcFruit.Controllers
         {
             var @module = await _context.Modules
                 .Include(m => m.Measurements)
-                .Include(m => m.Notifications)
+                .Include(m => m.NotificationsSettings)
                 .FirstOrDefaultAsync(m => m.ModuleID == id);
 
             if (@module == null)

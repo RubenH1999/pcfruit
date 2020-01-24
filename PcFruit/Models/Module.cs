@@ -13,6 +13,7 @@ namespace PcFruit.Models
         public int ModuleID { get; set; }
         public string Name { get; set; }
         public List<Measurement> Measurements { get; set; }
-        public List<NotificationSettings> Notifications { get; set; }
+        // notif. settings for this module
+        public List<NotificationSettings> NotificationsSettings { get; set; }
     }
 }

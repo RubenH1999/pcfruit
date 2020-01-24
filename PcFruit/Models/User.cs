@@ -20,7 +20,8 @@ namespace PcFruit.Models
         [NotMapped]
         public string Token { get; set; }
 
-        public ICollection<Notification> Notifications { get; set; }
+        // See NotificationSettings - the notifications this user is responsible for
+        public ICollection<NotificationSettings> NotificationSettings { get; set; }
 
     }
 }

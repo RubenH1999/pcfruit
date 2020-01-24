@@ -8,7 +8,6 @@ namespace PcFruit.Models
     public class NotificationSettings
     {
         public int NotificationSettingsID { get; set; }
-        public int NotificationID { get; set; }
         public int ModuleID { get; set; }
         public int MinTemp { get; set; }
         public int MinRH { get; set; }
@@ -20,5 +19,7 @@ namespace PcFruit.Models
         public User user { get; set; }
 
         public bool IsActive { get; set; }
+        public List<Notification> Notifications { get; set; }
+
     }
 }
