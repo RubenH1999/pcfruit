@@ -46,7 +46,8 @@ namespace PcFruit
                     x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
                     x.SerializerSettings.ContractResolver = new LowerCaseJsonPropertiesResolver();
                 });
-            services.AddDbContext<PcfruitContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<PcfruitContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("LocalConnection")));
+           /// services.AddDbContext<PcfruitContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
@@ -109,7 +110,7 @@ namespace PcFruit
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMvc();
-           // DBInitializer.Initialize(context);
+            DBInitializer.Initialize(context);
         }
     }
 }

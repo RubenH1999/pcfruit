@@ -20,8 +20,26 @@ namespace PcFruit.Models
             modelBuilder.Entity<Sensor>().ToTable("sensors");
             modelBuilder.Entity<User>().ToTable("users");
             modelBuilder.Entity<Module>().ToTable("modules");
-            modelBuilder.Entity<NotificationSettings>().ToTable("notificationSettings");
-            modelBuilder.Entity<Notification>().ToTable("notifications");
+            modelBuilder.Entity<Spec>().ToTable("sensorspecs");
+            modelBuilder.Entity<Measurement>().ToTable("measurements");
+            modelBuilder.Entity<Module>().ToTable("modules");
+            
+            // define many to many relationship
+            modelBuilder
+                .Entity<SensorSpec>()
+                .HasKey(s => new { s.SpecID, s.SensorID });
+
+            // define foreign key
+            modelBuilder.Entity<SensorSpec>()
+                .HasOne(s => s.Sensor)
+                .WithMany(s => s.SensorSpecs)
+                .HasForeignKey(s => s.SensorID);
+
+            // define other foreign key
+            modelBuilder.Entity<SensorSpec>()
+                .HasOne(s => s.Spec)
+                .WithMany(s => s.SensorsSpecs)
+                .HasForeignKey(s => s.SpecID);
         }
 
         public DbSet<PcFruit.Models.Module> Modules { get; set; }
