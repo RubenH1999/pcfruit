@@ -10,7 +10,6 @@ namespace PcFruit.Api.Requests
     {
         public string Logger { get; set; }
         public DateTime DateTime { get; set; }
-        public List<Sensor> Dendrometers { get; set; }
-        public List<Sensor> Thermometers { get; set; }
+        public List<SensorRequest> Sensors { get; set; }
     }
 }

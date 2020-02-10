@@ -12,6 +12,7 @@ namespace PcFruit.Models
     {
         Thermo,
         Dendro,
-        Humidity
+        Humidity,
+        Unknown
     }
 }

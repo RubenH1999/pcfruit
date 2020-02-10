@@ -55,12 +55,11 @@ def randomize_data(moduleName = None):
     data = {
         'logger': moduleName if moduleName else "Log00{}".format(random.randint(0, 999)),
         'dateTime': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'dendrometers': [],
-        'thermometers': []
+        'sensors': []
     }
     
     for label in ['L', 'K', 'J', 'I', 'F', 'E']:
-        data['dendrometers'].append(
+        data['sensors'].append(
             DendroMeter(
                 label, 
                 analog=rnd(),
@@ -71,7 +70,7 @@ def randomize_data(moduleName = None):
         )
     
     for label in ['A', 'B', 'C']:
-        data['thermometers'].append(
+        data['sensors'].append(
             TempMeter(
                 label, 
                 analog=rnd(), 
@@ -95,7 +94,7 @@ data = randomize_data(moduleName)
 print("sending: " + json.dumps(data))
 
 url = "http://localhost:61955/api/measurements"
-if len(sys.argv) > 0:
+if len(sys.argv) > 1:
     url = sys.argv[1]
 
 r = requests.post(url, json=data)
