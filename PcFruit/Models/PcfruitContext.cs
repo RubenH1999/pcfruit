@@ -12,8 +12,10 @@ namespace PcFruit.Models
         public PcfruitContext(DbContextOptions<PcfruitContext> options)
             :base(options)
         { }
-        public DbSet<Sensor> Meters { get; set; }
+        public DbSet<Sensor> Sensors { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Module> Modules { get; set; }
+        public DbSet<Measurement> Measurements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -42,8 +44,6 @@ namespace PcFruit.Models
                 .HasForeignKey(s => s.SpecID);
         }
 
-        public DbSet<PcFruit.Models.Module> Modules { get; set; }
-
-        public DbSet<PcFruit.Models.Measurement> Measurements { get; set; }
+       
     }
 }

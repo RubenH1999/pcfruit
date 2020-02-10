@@ -11,7 +11,7 @@ namespace PcFruit.Models
         {
             context.Database.EnsureCreated();
 
-            if(context.Meters.Any() || context.Measurements.Any() || context.Modules.Any() || context.Users.Any())
+            if(context.Sensors.Any() || context.Measurements.Any() || context.Modules.Any() || context.Users.Any())
             {
                 return;
             }

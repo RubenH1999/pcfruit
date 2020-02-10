@@ -25,7 +25,11 @@ namespace PcFruit.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Measurement>>> GetMeasurements()
         {
-            return await _context.Measurements.ToListAsync();
+            return await _context.Measurements
+                .Include(m => m.Module)
+                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Sensor)
+                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Spec)
+                .ToListAsync();
         }
 
         // GET: api/Measurements/5
@@ -85,7 +89,7 @@ namespace PcFruit.Controllers
             var currentDate = DateTime.Now;
 
             // add received sensor data to the measurement
-            foreach (SensorRequest sensor in request.Sensors)
+            foreach (SensorRequest sensorRequest in request.Sensors)
             {
                 Measurement measurement = new Measurement
                 {
@@ -94,21 +98,38 @@ namespace PcFruit.Controllers
                     TimeRegistered = currentDate
                 };
                 // determine sensor type and set value of the measurement based on that
-                switch (sensor.GetType())
+                switch (sensorRequest.GetType())
                 {
                     case SensorType.Dendro:
-                        measurement.Value = (double) sensor.Distance;
+                        measurement.Value = (double) sensorRequest.Distance;
                         break;
                     case SensorType.Humidity:
-                        measurement.Value = (double) sensor.Humidity;
+                        measurement.Value = (double) sensorRequest.Humidity;
                         break;
                     case SensorType.Thermo:
-                        measurement.Value = (double) sensor.Temperature;
+                        measurement.Value = (double) sensorRequest.Temperature;
                         break;
                     default:
                         throw new Exception("Unknown sensor type");
                 }
 
+                Sensor sensor = await _context.Sensors.FirstOrDefaultAsync(s => s.Name == sensorRequest.Label) ?? new Sensor
+                {
+                    Name = sensorRequest.Label,
+                    SensorType = sensorRequest.GetType()
+                };
+
+                measurement.SensorSpec = new SensorSpec
+                {
+                    Sensor = sensor,
+                    Spec = new Spec
+                    {
+                        Name = "test",
+                        Max = 30,
+                        Min = 0
+                    }
+                };
+                
                 _context.Measurements.Add(measurement);
               
                 await _context.SaveChangesAsync();
