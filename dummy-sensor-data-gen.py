@@ -77,7 +77,7 @@ def randomize_data(moduleName = None):
                 voltage=rnd(), 
                 resistance=rnd(),
                 temp=rnd(10, 30), 
-                humidity=rnd(10, 30)
+                humidity=None
             ).get_json()
         )
 
