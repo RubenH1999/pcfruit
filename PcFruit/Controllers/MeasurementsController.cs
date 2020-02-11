@@ -66,7 +66,7 @@ namespace PcFruit.Controllers
                 // create singe object, which will contain all sensor data
                 MeasurementResponse measurementResponse = new MeasurementResponse
                 {
-                    Name = measurementGroup.ElementAt(0).Module.Name,
+                    Module = measurementGroup.ElementAt(0).Module,
                     TimeReceived = measurementGroup.ElementAt(0).TimeReceived,
                     TimeRegistered = measurementGroup.ElementAt(0).TimeRegistered,
                     Sensors = measurementGroup.Select(m =>
