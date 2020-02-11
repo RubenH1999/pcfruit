@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PcFruit.Api.Requests;
+using PcFruit.Api.Responses;
 using PcFruit.Models;
 
 namespace PcFruit.Controllers
@@ -27,13 +28,13 @@ namespace PcFruit.Controllers
         {
             return await _context.Measurements
                 .Include(m => m.Module)
-                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Sensor)
+                //.Include(m => m.SensorSpec).ThenInclude(ss => ss.Sensor)
                 .Include(m => m.SensorSpec).ThenInclude(ss => ss.Spec)
                 .ToListAsync();
         }
 
         // GET: api/Measurements/5
-        [HttpGet("{id}")]
+        /*[HttpGet("{id}")]
         public async Task<ActionResult<Measurement>> GetMeasurement(long id)
         {
             var measurement = await _context.Measurements.FindAsync(id);
@@ -44,6 +45,44 @@ namespace PcFruit.Controllers
             }
 
             return measurement;
+        }*/
+
+        // GET: api/Measurements/module
+        [HttpGet("{module}")]
+        public async Task<List<MeasurementResponse>> GetMeasurement(string module)
+        {
+            var measurementGroups =  _context.Measurements
+                .Include(m => m.Module)
+                .Where(m => m.Module.Name == module)
+                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Spec)
+                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Sensor)
+                .GroupBy(m => m.TimeReceived);
+
+            List<MeasurementResponse> measurements = new List<MeasurementResponse>();
+
+            // iterate over each group (measurementGroups is an array of arrays, grouped by TimeReceived)
+            foreach (var measurementGroup in measurementGroups)
+            {
+                // create singe object, which will contain all sensor data
+                MeasurementResponse measurementResponse = new MeasurementResponse
+                {
+                    Name = measurementGroup.ElementAt(0).Module.Name,
+                    TimeReceived = measurementGroup.ElementAt(0).TimeReceived,
+                    TimeRegistered = measurementGroup.ElementAt(0).TimeRegistered,
+                    Sensors = measurementGroup.Select(m =>
+                    {
+                        SensorResponse s = new SensorResponse(m.SensorSpec.Sensor)
+                        {
+                            Value = m.Value
+                        };
+                        return s;
+                    }).ToList()
+                };
+
+                measurements.Add(measurementResponse);
+            }
+
+            return measurements;
         }
 
         // PUT: api/Measurements/5
