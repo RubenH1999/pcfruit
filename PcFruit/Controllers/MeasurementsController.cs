@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PcFruit.Api.Requests;
 using PcFruit.Api.Responses;
+using PcFruit.Helpers;
 using PcFruit.Models;
 
 namespace PcFruit.Controllers
@@ -158,17 +159,17 @@ namespace PcFruit.Controllers
                     SensorType = sensorRequest.GetType()
                 };
 
-                measurement.SensorSpec = new SensorSpec
+                // find existing spec fot this sensor. If it doesn't exist yet a new default spec will be created
+                SensorSpec sensorSpec = await _context.SensorSpecs
+                    .Include(ss => ss.Spec)
+                    .FirstOrDefaultAsync(ss => ss.SensorID == sensor.SensorID);
+
+                measurement.SensorSpec = sensorSpec ?? new SensorSpec
                 {
                     Sensor = sensor,
-                    Spec = new Spec
-                    {
-                        Name = "test",
-                        Max = 30,
-                        Min = 0
-                    }
+                    Spec = new DefaultSpec(sensor.SensorType)
                 };
-                
+
                 _context.Measurements.Add(measurement);
               
                 await _context.SaveChangesAsync();

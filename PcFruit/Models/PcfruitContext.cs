@@ -13,6 +13,8 @@ namespace PcFruit.Models
             :base(options)
         { }
         public DbSet<Sensor> Sensors { get; set; }
+        public DbSet<Spec> Specs { get; set; }
+        public DbSet<SensorSpec> SensorSpecs { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Module> Modules { get; set; }
         public DbSet<Measurement> Measurements { get; set; }
@@ -20,9 +22,10 @@ namespace PcFruit.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Sensor>().ToTable("sensors");
+            modelBuilder.Entity<SensorSpec>().ToTable("sensorsSpecs");
             modelBuilder.Entity<User>().ToTable("users");
             modelBuilder.Entity<Module>().ToTable("modules");
-            modelBuilder.Entity<Spec>().ToTable("sensorspecs");
+            modelBuilder.Entity<Spec>().ToTable("specs");
             modelBuilder.Entity<Measurement>().ToTable("measurements");
             modelBuilder.Entity<Module>().ToTable("modules");
             
