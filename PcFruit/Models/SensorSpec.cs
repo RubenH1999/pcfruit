@@ -7,10 +7,10 @@ namespace PcFruit.Models
 {
     public class SensorSpec
     {
-        public long SensorSpecID { get; set; }
+        // NOTE: primary key is a combined key of SensorID and specID (ASP.NET will do this automatically)
         public long SensorID { get; set; }
         public Sensor Sensor { get; set; }
-        public long SpecID { get; set; }
+        public long? SpecID { get; set; }
         public Spec Spec { get; set; }
     }
 }

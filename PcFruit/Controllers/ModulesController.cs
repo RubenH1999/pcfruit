@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PcFruit.Api.Requests;
+using PcFruit.Api.Responses;
 using PcFruit.Models;
 
 namespace PcFruit.Controllers
@@ -39,6 +42,24 @@ namespace PcFruit.Controllers
             }
 
             return @module;
+        }
+
+        [HttpGet("{name}/settings")]
+        public async Task<ModuleSettingsResponse> GetModuleSettings(string name)
+        {
+            var sensorTypes = Enum.GetValues(typeof(SensorType))
+                .Cast<SensorType>()
+                .Select(i => Enum.GetName(typeof(SensorType), i))
+                .ToList();
+
+            return new ModuleSettingsResponse
+            {
+                AvailableSensorTypes = sensorTypes,
+                ModuleSettings = _context.ModuleSettings
+                    .Include(m => m.Module)
+                    .Where(m => m.Module.Name == name)
+                    .ToList()
+            };
         }
 
         // PUT: api/Modules/5
@@ -79,6 +100,45 @@ namespace PcFruit.Controllers
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetModule", new { id = @module.ModuleID }, @module);
+        }
+
+
+        // POST: api/Modules
+        [HttpPost("settings")]
+        public async Task<ActionResult<Module>> PostModuleSettings(ModuleSettingsRequest request)
+        {
+
+            Module module = _context.Modules
+                .Include(m => m.ModuleSettings)
+                .FirstOrDefault(m => m.Name == request.ModuleName);
+
+            if (module == null)
+                return BadRequest("Module " + request.ModuleName + " does not exist!");
+
+            ModuleSettings moduleSettings = module.ModuleSettings.FirstOrDefault(ms => ms.SensorType == request.SensorType);
+
+            // if given sensor type already has a setting, update the module settings instead
+            if (moduleSettings != null)
+            {
+                moduleSettings.Min = request.Min;
+                moduleSettings.Max = request.Max;
+                _context.Entry(module).State = EntityState.Modified;
+            }
+            else
+            {
+                moduleSettings = new ModuleSettings
+                {
+                    Min = request.Min,
+                    Max = request.Max,
+                    Module = module,
+                    SensorType = request.SensorType
+                };
+                _context.ModuleSettings.Add(moduleSettings);
+            }
+            
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetModule", new { id = module.ModuleID }, @module);
         }
 
         // DELETE: api/Modules/5

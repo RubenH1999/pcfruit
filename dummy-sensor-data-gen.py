@@ -39,14 +39,24 @@ class TempMeter(Meter):
     def __init__(self, label, **kwargs):
         super().__init__(label, **kwargs)
         self.temp = kwargs['temp']
-        self.humidity = kwargs['humidity']
 
 
     def get_json(self):
         json = super().get_json()
         json['temperature'] = self.temp
+        return json
+
+
+class HumidityMeter(Meter):
+    def __init__(self, label, **kwargs):
+        super().__init__(label, **kwargs)
+        self.humidity = kwargs['humidity']
+
+    def get_json(self):
+        json = super().get_json()
         json['humidity'] = self.humidity
         return json
+
 
 def rnd(min = 1, max = 5):
     return random.randint(min, max)
@@ -76,8 +86,18 @@ def randomize_data(moduleName = None):
                 analog=rnd(), 
                 voltage=rnd(), 
                 resistance=rnd(),
-                temp=rnd(10, 30), 
-                humidity=None
+                temp=rnd(10, 30)
+            ).get_json()
+        )
+
+    for label in ['X', 'Y', 'Z']:
+        data['sensors'].append(
+            HumidityMeter(
+                label, 
+                analog=rnd(), 
+                voltage=rnd(), 
+                resistance=rnd(),
+                humidity=rnd()
             ).get_json()
         )
 
