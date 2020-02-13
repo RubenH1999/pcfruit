@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PcFruit.Api.Requests;
+using PcFruit.Api.Responses;
+using PcFruit.Helpers;
 using PcFruit.Models;
 
 namespace PcFruit.Controllers
@@ -23,17 +25,20 @@ namespace PcFruit.Controllers
 
         // GET: api/Measurements
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Measurement>>> GetMeasurement()
+        public async Task<List<IGrouping<string,Measurement>>> GetMeasurements()
         {
-            return await _context.Measurements
-                .Include(m => m.Sensors)
-                .Include(x => x.Module)
-                .ToListAsync();
+            var measurementGroups = _context.Measurements
+                .Include(m => m.Module)
+                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Sensor).GroupBy(m=>m.Module.Name).ToList();
+
+            return measurementGroups;
         }
 
+        
+
         // GET: api/Measurements/5
-       /* [HttpGet("{id}")]
-        public async Task<ActionResult<Measurement>> GetMeasurement(int id)
+        /*[HttpGet("{id}")]
+        public async Task<ActionResult<Measurement>> GetMeasurement(long id)
         {
             var measurement = await _context.Measurements.FindAsync(id);
 
@@ -45,28 +50,46 @@ namespace PcFruit.Controllers
             return measurement;
         }*/
 
-        // GET: api/Measurements/<modulename>
-        [HttpGet("{name}")]
-        public async Task<ActionResult<List<Measurement>>> GetMeasurementsOfModule(string name)
+        // GET: api/Measurements/module
+        [HttpGet("{module}")]
+        public async Task<List<MeasurementResponse>> GetMeasurement(string module)
         {
-            var measurements = _context.Measurements
+            var measurementGroups =  _context.Measurements
                 .Include(m => m.Module)
-                .Include(m => m.Sensors)
-                .Where(m => m.Module.Name == name)
-                .ToList();
+                .Where(m => m.Module.Name == module)
+                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Sensor)
+                .GroupBy(m => m.TimeReceived);
 
-            if (measurements.Count == 0)
-                return NotFound("module '" + name + "' not found!");
+            List<MeasurementResponse> measurements = new List<MeasurementResponse>();
 
+            // iterate over each group (measurementGroups is an array of arrays, grouped by TimeReceived)
+            foreach (var measurementGroup in measurementGroups)
+            {
+                // create singe object, which will contain all sensor data
+                MeasurementResponse measurementResponse = new MeasurementResponse
+                {
+                    Module = measurementGroup.ElementAt(0).Module,
+                    TimeReceived = measurementGroup.ElementAt(0).TimeReceived,
+                    TimeRegistered = measurementGroup.ElementAt(0).TimeRegistered,
+                    Sensors = measurementGroup.Select(m =>
+                    {
+                        SensorResponse s = new SensorResponse(m.SensorSpec.Sensor)
+                        {
+                            Value = m.Value
+                        };
+                        return s;
+                    }).ToList()
+                };
+
+                measurements.Add(measurementResponse);
+            }
 
             return measurements;
         }
 
-
-
         // PUT: api/Measurements/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMeasurement(int id, Measurement measurement)
+        public async Task<IActionResult> PutMeasurement(long id, Measurement measurement)
         {
             if (id != measurement.MeasurementID)
             {
@@ -98,38 +121,68 @@ namespace PcFruit.Controllers
         [HttpPost]
         public async Task<ActionResult<Measurement>> PostMeasurement(MeasurementRequest request)
         {
-            // find module or register new one if it doesn't exist yet
-            Module module = _context.Modules.FirstOrDefault(m => m.Name == request.Logger);
-            if (module == null)
-                module = new Module() { Name = request.Logger };
-
-            // create measurement
-            Measurement measurement = new Measurement() { 
-                Module = module,
-                TimeReceived = DateTime.Now,
-                TimeRegistered = request.DateTime
+            // get existing module or create new one if it doesn't exist yet
+            Module module = await _context.Modules.FirstOrDefaultAsync(m => m.Name == request.Logger) ?? new Module
+            {
+                Name = request.Logger
             };
 
-            // add the measurement values
-            measurement.Sensors = request.Thermometers.Select(sensor => {
-                sensor.Type = SensorType.Thermometer;
-                return sensor;
-            }).ToList();
+            var currentDate = DateTime.Now;
 
-            measurement.Sensors.AddRange(request.Dendrometers.Select(sensor => {
-                sensor.Type = SensorType.Dendrometer;
-                return sensor;
-            }));
+            // add received sensor data to the measurement
+            foreach (SensorRequest sensorRequest in request.Sensors)
+            {
+                Measurement measurement = new Measurement
+                {
+                    Module = module,
+                    TimeReceived = request.DateTime,
+                    TimeRegistered = currentDate
+                };
+                // determine sensor type and set value of the measurement based on that
+                switch (sensorRequest.GetType())
+                {
+                    case SensorType.Dendro:
+                        measurement.Value = (double) sensorRequest.Distance;
+                        break;
+                    case SensorType.Humidity:
+                        measurement.Value = (double) sensorRequest.Humidity;
+                        break;
+                    case SensorType.Thermo:
+                        measurement.Value = (double) sensorRequest.Temperature;
+                        break;
+                    default:
+                        throw new Exception("Unknown sensor type");
+                }
 
-            // save the measurements in the database
-            _context.Measurements.Add(measurement);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetMeasurement", new { id = measurement.MeasurementID }, measurement);
+                Sensor sensor = await _context.Sensors.FirstOrDefaultAsync(s => s.Name == sensorRequest.Label) ?? new Sensor
+                {
+                    Name = sensorRequest.Label,
+                    SensorType = sensorRequest.GetType()
+                };
+
+                // find existing spec fot this sensor. If it doesn't exist yet a new default spec will be created
+                SensorSpec sensorSpec = await _context.SensorSpecs
+                    .Include(ss => ss.Spec)
+                    .FirstOrDefaultAsync(ss => ss.SensorID == sensor.SensorID);
+
+                measurement.SensorSpec = sensorSpec ?? new SensorSpec
+                {
+                    Sensor = sensor,
+                    Spec = new DefaultSpec(sensor.SensorType)
+                };
+
+                _context.Measurements.Add(measurement);
+              
+                await _context.SaveChangesAsync();
+            }
+
+
+            return CreatedAtAction("GetMeasurements", null);
         }
 
         // DELETE: api/Measurements/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Measurement>> DeleteMeasurement(int id)
+        public async Task<ActionResult<Measurement>> DeleteMeasurement(long id)
         {
             var measurement = await _context.Measurements.FindAsync(id);
             if (measurement == null)
@@ -143,7 +196,7 @@ namespace PcFruit.Controllers
             return measurement;
         }
 
-        private bool MeasurementExists(int id)
+        private bool MeasurementExists(long id)
         {
             return _context.Measurements.Any(e => e.MeasurementID == id);
         }

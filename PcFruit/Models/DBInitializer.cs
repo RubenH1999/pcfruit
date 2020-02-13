@@ -11,18 +11,11 @@ namespace PcFruit.Models
         {
             context.Database.EnsureCreated();
 
-            if(context.Meters.Any())
+            if(context.Sensors.Any() || context.Measurements.Any() || context.Modules.Any() || context.Users.Any())
             {
                 return;
             }
-
-            context.Meters.AddRange(
-                new Sensor { Analog = 0, Distance = 1, Label = "L", Resistance = 0, Voltage = 0 }
-            );
-            context.Users.AddRange(
-                new User { Naam = "Horemans", Voornaam = "Ruben", Email= "r0695765@student.thomasmore.be", Password="test"}
-                );
-           
+ 
             context.SaveChanges();
         }
     }

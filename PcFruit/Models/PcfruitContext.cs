@@ -12,20 +12,44 @@ namespace PcFruit.Models
         public PcfruitContext(DbContextOptions<PcfruitContext> options)
             :base(options)
         { }
-        public DbSet<Sensor> Meters { get; set; }
+        public DbSet<Sensor> Sensors { get; set; }
+        public DbSet<Spec> Specs { get; set; }
+        public DbSet<SensorSpec> SensorSpecs { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Module> Modules { get; set; }
+        public DbSet<Measurement> Measurements { get; set; }
+        public DbSet<ModuleSettings> ModuleSettings { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Sensor>().ToTable("sensors");
+            modelBuilder.Entity<SensorSpec>().ToTable("sensorsSpecs");
             modelBuilder.Entity<User>().ToTable("users");
             modelBuilder.Entity<Module>().ToTable("modules");
-            modelBuilder.Entity<NotificationSettings>().ToTable("notificationSettings");
-            modelBuilder.Entity<Notification>().ToTable("notifications");
+            modelBuilder.Entity<Spec>().ToTable("specs");
+            modelBuilder.Entity<Measurement>().ToTable("measurements");
+            modelBuilder.Entity<Module>().ToTable("modules");
+            modelBuilder.Entity<ModuleSettings>().ToTable("moduleSettings");
+
+            // define many to many relationship
+            modelBuilder
+                .Entity<SensorSpec>()
+                .HasKey(s => new { s.SpecID, s.SensorID });
+
+            // define foreign key
+            modelBuilder.Entity<SensorSpec>()
+                .HasOne(s => s.Sensor)
+                .WithMany(s => s.SensorSpecs)
+                .HasForeignKey(s => s.SensorID);
+
+            // define other foreign key
+            modelBuilder.Entity<SensorSpec>()
+                .HasOne(s => s.Spec)
+                .WithMany(s => s.SensorsSpecs)
+                .HasForeignKey(s => s.SpecID);
         }
 
-        public DbSet<PcFruit.Models.Module> Modules { get; set; }
-
-        public DbSet<PcFruit.Models.Measurement> Measurements { get; set; }
+       
     }
 }

@@ -10,7 +10,9 @@ namespace PcFruit.Models
     /// </summary>
     public enum SensorType
     {
-        Thermometer,
-        Dendrometer
+        Thermo,
+        Dendro,
+        Humidity,
+        Unknown
     }
 }
