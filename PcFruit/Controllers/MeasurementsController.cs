@@ -24,14 +24,16 @@ namespace PcFruit.Controllers
 
         // GET: api/Measurements
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Measurement>>> GetMeasurements()
+        public async Task<List<IGrouping<string,Measurement>>> GetMeasurements()
         {
-            return await _context.Measurements
+            var measurementGroups = _context.Measurements
                 .Include(m => m.Module)
-                //.Include(m => m.SensorSpec).ThenInclude(ss => ss.Sensor)
-                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Spec)
-                .ToListAsync();
+                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Sensor).GroupBy(m=>m.Module.Name).ToList();
+
+            return measurementGroups;
         }
+
+        
 
         // GET: api/Measurements/5
         /*[HttpGet("{id}")]
@@ -54,7 +56,6 @@ namespace PcFruit.Controllers
             var measurementGroups =  _context.Measurements
                 .Include(m => m.Module)
                 .Where(m => m.Module.Name == module)
-                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Spec)
                 .Include(m => m.SensorSpec).ThenInclude(ss => ss.Sensor)
                 .GroupBy(m => m.TimeReceived);
 
