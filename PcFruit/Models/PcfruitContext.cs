@@ -18,6 +18,8 @@ namespace PcFruit.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Module> Modules { get; set; }
         public DbSet<Measurement> Measurements { get; set; }
+        public DbSet<ModuleSettings> ModuleSettings { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,7 +30,8 @@ namespace PcFruit.Models
             modelBuilder.Entity<Spec>().ToTable("specs");
             modelBuilder.Entity<Measurement>().ToTable("measurements");
             modelBuilder.Entity<Module>().ToTable("modules");
-            
+            modelBuilder.Entity<ModuleSettings>().ToTable("moduleSettings");
+
             // define many to many relationship
             modelBuilder
                 .Entity<SensorSpec>()

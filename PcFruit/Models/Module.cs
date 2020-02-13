@@ -11,5 +11,7 @@ namespace PcFruit.Models
         public string Name { get; set; }
         public ICollection<Measurement> Measurements { get; set; }
         public ICollection<User> Users { get; set; }
+        public long ModuleSettingsID { get; set; }
+        public ICollection<ModuleSettings> ModuleSettings { get; set; }
     }
 }
