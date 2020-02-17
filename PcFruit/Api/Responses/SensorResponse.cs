@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Storage;
 using PcFruit.Models;
 
@@ -7,6 +8,10 @@ namespace PcFruit.Api.Responses
     public class SensorResponse : Sensor
     {
         public double Value { get; set; }
+        public DateTime TimeRegistered { get; set; }
+        public short Min { get; set; }
+        public short Max { get; set; }
+
         public SensorResponse(Sensor sensor) : base()
         {
             // automatically populate fields based on given parent class

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using PcFruit.Api.Requests;
 using PcFruit.Api.Responses;
 using PcFruit.Models;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace PcFruit.Controllers
 {
@@ -42,6 +43,52 @@ namespace PcFruit.Controllers
             }
 
             return @module;
+        }
+
+        // GET: api/Modules/5/notifications
+        [HttpGet("{name}/notifications")]
+        public async Task<ActionResult<NotificationResponse>> GetModuleNotifications(string name)
+        {
+            // find the module and include all data we need
+            var module = await _context.Modules
+                .Include(m => m.ModuleSettings)
+                .Include(m => m.Measurements)
+                    .ThenInclude(mes => mes.SensorSpec)
+                        .ThenInclude(ss => ss.Sensor)
+                .FirstOrDefaultAsync(m => m.Name == name);
+
+            if (module == null) return NotFound();
+            
+            // get all measurements that exceeded the maximum or are lower that the minimum that was specified in ModuleSettings.
+            var problematicMeasurements = module.ModuleSettings.SelectMany(ms =>
+            {
+                return module.Measurements
+                    .Where(m => m.SensorSpec.Sensor.SensorType == ms.SensorType)
+                    .Where(m => m.Value > ms.Max || m.Value < ms.Min);
+            }).ToList();
+
+            if (problematicMeasurements.Count == 0)
+                return Ok(problematicMeasurements);
+
+            // (this only includes the most recent notifications)
+            var latestProblematicMeasurements = problematicMeasurements
+                .GroupBy(m => m.TimeRegistered)
+                .First();
+
+            return new NotificationResponse
+            {
+                ModuleName = module.Name,
+                Sensors = latestProblematicMeasurements
+                    .Select(m => new SensorResponse(m.SensorSpec.Sensor)
+                    {
+                        Value = m.Value,
+                        TimeRegistered = m.TimeRegistered,
+                        Min = module.ModuleSettings.First(mod => mod.SensorType == m.SensorSpec.Sensor.SensorType).Min,
+                        Max = module.ModuleSettings.First(mod => mod.SensorType == m.SensorSpec.Sensor.SensorType).Max,
+
+                    })
+                    .ToList()
+            };
         }
 
         [HttpGet("{name}/settings")]
