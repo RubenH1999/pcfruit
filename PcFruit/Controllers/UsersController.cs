@@ -33,7 +33,7 @@ namespace PcFruit.Controllers
 
         // GET: api/Users/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<User>> GetUser(long id)
         {
             var user = await _context.Users.FindAsync(id);
 
