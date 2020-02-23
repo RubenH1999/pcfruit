@@ -54,6 +54,15 @@ namespace PcFruit.Controllers
                 return BadRequest();
             }
 
+            if (user.Status)
+            {
+                user.Status = false;
+            }
+            else
+            {
+                user.Status = true;
+            }
+
             _context.Entry(user).State = EntityState.Modified;
 
             try
