@@ -61,10 +61,10 @@ class HumidityMeter(Meter):
 def rnd(min = 1, max = 5):
     return random.randint(min, max)
 
-def randomize_data(moduleName = None):
+def randomize_data(moduleName = None, timeOffset = 0):
     data = {
         'logger': moduleName if moduleName else "Log00{}".format(random.randint(0, 999)),
-        'dateTime': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'dateTime': (datetime.datetime.now() + datetime.timedelta(minutes=int(timeOffset))).strftime("%Y-%m-%d %H:%M:%S"),
         'sensors': []
     }
     
@@ -107,10 +107,15 @@ def randomize_data(moduleName = None):
 
 # read module from args
 moduleName = None
-if len(sys.argv) == 3:
+if len(sys.argv) >= 3:
     moduleName = sys.argv[2]
 
-data = randomize_data(moduleName)
+    
+timeOffset = 0
+if len(sys.argv) == 4:
+    timeOffset = sys.argv[3]
+
+data = randomize_data(moduleName, timeOffset)
 print("sending: " + json.dumps(data))
 
 url = "http://localhost:61955/api/measurements"

@@ -22,16 +22,56 @@ namespace PcFruit.Controllers
         {
             _context = context;
         }
+        // GET: api/Measurements
+        [HttpGet]
+        public async Task<List<Measurement>> GetMeasurements()
+        {
+            return await _context.Measurements.ToListAsync();
+        }
 
         // GET: api/Measurements
         [HttpGet]
-        public async Task<List<IGrouping<string,Measurement>>> GetMeasurements()
+        [Route("/api/getAllMeasurements")]
+        public FruitSoortResponseList GetAllMeasurements()
         {
-            var measurementGroups = _context.Measurements
-                .Include(m => m.Module)
-                .Include(m => m.SensorSpec).ThenInclude(ss => ss.Sensor).GroupBy(m=>m.Module.Name).ToList();
+            var modules = _context.Modules.Include(m=>m.Measurements).ThenInclude(mx=>mx.SensorSpec).ThenInclude(ss=>ss.Sensor).ToList();            
 
-            return measurementGroups;
+            List<FruitSoortResponse> ObjectListAppels = new List<FruitSoortResponse>();
+            List<FruitSoortResponse> ObjectListPeren = new List<FruitSoortResponse>();
+            FruitSoortResponseList ObjectLists = new FruitSoortResponseList();            
+
+            foreach (var module in modules)
+            {
+                var moduleMeasurements = module.Measurements.GroupBy(m => m.TimeReceived.Month)
+                    .OrderBy(g=>g.Min(m =>m.TimeReceived.Month));
+                
+                foreach (var m in moduleMeasurements)
+                {
+                    if (m.ElementAt(0).SensorSpec.Sensor.SensorType == SensorType.Dendro) {
+                        if (module.FruitSoort == 1)
+                        {
+                            FruitSoortResponse measurementGroup = new FruitSoortResponse
+                            {
+                                TimeReceived = m.ElementAt(0).TimeReceived,
+                                Value = m.Select((r, i) => (r.Value)).Average()
+                            };
+                            ObjectListAppels.Add(measurementGroup);
+                        }
+                        else
+                        {
+                            FruitSoortResponse measurementGroup = new FruitSoortResponse
+                            {
+                                TimeReceived = m.ElementAt(0).TimeReceived,
+                                Value = m.Select((r, i) => (r.Value)).Average()
+                            };
+                            ObjectListPeren.Add(measurementGroup);
+                        }
+                    };
+                }
+            }
+            ObjectLists.ListAppels = ObjectListAppels;
+            ObjectLists.ListPeren = ObjectListPeren;
+            return ObjectLists;
         }
 
         
@@ -52,7 +92,7 @@ namespace PcFruit.Controllers
 
         // GET: api/Measurements/module
         [HttpGet("{module}")]
-        public async Task<List<MeasurementResponse>> GetMeasurement(string module)
+        public List<MeasurementResponse> GetMeasurement(string module)
         {
             var measurementGroups =  _context.Measurements
                 .Include(m => m.Module)
