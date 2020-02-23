@@ -22,12 +22,12 @@ namespace PcFruit.Controllers
         {
             _context = context;
         }
-        [Authorize]
+        
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            var userID = User.Claims.FirstOrDefault(c => c.Type == "UserID").Value;
+            
             return await _context.Users.ToListAsync();
         }
 
@@ -84,8 +84,11 @@ namespace PcFruit.Controllers
                 return BadRequest("User with that email address already exists!");
 
             // hash password
-            user.Salt = Salt.Create();
-            user.Password = Hash.Create(user.Password, user.Salt);
+            if (user.Password != null)
+            {
+                user.Salt = Salt.Create();
+                user.Password = Hash.Create(user.Password, user.Salt);
+            }
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();

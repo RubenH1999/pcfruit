@@ -16,6 +16,7 @@ namespace PcFruit.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Password { get; set; }
+        public Boolean Status { get; set; }
         public string Salt { get; set; } // only used for password hashing, should be stored in db though!
         [NotMapped]
         public string Token { get; set; }
