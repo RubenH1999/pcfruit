@@ -29,7 +29,7 @@ namespace PcFruit.Controllers
 
         // GET: api/Sensors/types
         [HttpGet("types")]
-        public async Task<IEnumerable<string>> GetAllSensorTypes()
+        public IEnumerable<string> GetAllSensorTypes()
         {
             return Enum.GetValues(typeof(SensorType))
                 .Cast<SensorType>()
